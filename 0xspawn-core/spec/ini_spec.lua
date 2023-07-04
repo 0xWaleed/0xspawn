@@ -136,6 +136,8 @@ describe('ini_parse', function()
     local input
     before_each(function()
         input = [[name = Waleed
+        lang=ar
+
 version = 0.1
 [info]
 
@@ -151,10 +153,11 @@ city=middle-east
 ]]
     end)
 
-    it('parses', function()
+    it('parses #1', function()
         local o = ini_parse(input)
         assert.same({
             name = "Waleed",
+            lang = "ar",
             version = 0.1,
             info = {
                 pc = 'tomato',
@@ -168,5 +171,38 @@ city=middle-east
             }
         }, o)
     end)
+
+    it('parses #2', function()
+        local input = [[
+        only=true
+        [Store]
+        x = 106.1334
+        y = 107.1334
+        z = 108.1334
+        heading = 109.37777
+        [Police]
+        x = 106
+        y = 107
+        z = 108
+        heading = 109
+        ]]
+        local o = ini_parse(input)
+        assert.same({
+            only = true,
+            Store = {
+                x = tonumber('106.1334'),
+                y = tonumber('107.1334'),
+                z = tonumber('108.1334'),
+                heading = tonumber('109.37777')
+            },
+            Police = {
+                x = tonumber('106'),
+                y = tonumber('107'),
+                z = tonumber('108'),
+                heading = tonumber('109')
+            }
+        }, o)
+    end)
+
 
 end)
