@@ -3,6 +3,25 @@
 --- DateTime: 7/3/23 5:35 PM
 ---
 
+function ini_dump(input)
+    return input:gsub(".", function(c)
+        return string.format("%02X", string.byte(c))
+    end)
+end
+
+function ini_is_space(char)
+    local byte = char:byte(1)
+    return byte == 0x20
+end
+
+function ini_is_newline(char)
+    local byte = char:byte(1)
+    return byte == 10 or byte == 13
+end
+
+function ini_space_or_newline(char)
+    return ini_is_newline(char) or ini_is_space(char)
+end
 
 function ini_trim(value)
     local v = ''
@@ -13,16 +32,16 @@ function ini_trim(value)
         local startChar = value:sub(start, start)
         local lastChar = value:sub(lastIndex, lastIndex)
 
-        if startChar ~= ' ' and lastChar ~= ' ' and startChar ~= '\n' and lastChar ~= '\n' then
+        if not ini_space_or_newline(startChar) and not ini_space_or_newline(lastChar) then
             v = value:sub(start, lastIndex)
             break
         end
 
-        if startChar == ' ' or startChar == '\n' then
+        if ini_space_or_newline(startChar) then
             start = start + 1
         end
 
-        if lastChar == ' ' or lastChar == '\n' then
+        if ini_space_or_newline(lastChar) then
             lastIndex = lastIndex - 1
         end
     end
@@ -53,21 +72,21 @@ function ini_parse_line(line)
     end
 
     if not doneKey then
-        error(('Expected `%s` line to have `=`.'):format(line))
+        error(('Expected `%s:%s` line to have `=`.'):format(line, ini_dump(line)))
     end
 
     value = ini_trim(current)
 
     if tonumber(value) then
-        value = tonumber(value)
+        return key, tonumber(value)
     end
 
     if value == 'true' then
-        value = true
+        return key, true
     end
 
     if value == 'false' then
-        value = false
+        return key, false
     end
 
     return key, value
@@ -80,6 +99,7 @@ function ini_parse(input)
     local withInBracket = false
     local lines = {}
     local withInBracketKey = ''
+
     for i = 1, length do
         local char = input:sub(i, i)
         if char == '[' then
@@ -100,11 +120,14 @@ function ini_parse(input)
             goto continue
         end
 
-        if char == '\n' or i == length then
+        if ini_is_newline(char) or i == length then
             if i == length then
                 line = line .. char
             end
-            table.insert(lines, line)
+            line = ini_trim(line)
+            if line ~= '' then
+                table.insert(lines, line)
+            end
             line = ''
         end
 
@@ -113,20 +136,22 @@ function ini_parse(input)
     end
 
     local temp = out
-    local previous = nil
+    local previous
 
     for _, line in ipairs(lines) do
         if type(line) == 'table' then
+            local currentLine = line[1]
             if previous then
                 temp = previous
             end
             previous = temp
-            temp[line[1]] = {}
-            temp = temp[line[1]]
+            temp[currentLine] = {}
+            temp = temp[currentLine]
             goto continue
         end
 
-        if line == ' ' or line == '\n' or line == '\r' then
+        if ini_space_or_newline(line) then
+            print(string.format('%02X', line:byte(1)), ini_trim(line))
             goto continue
         end
 

@@ -112,14 +112,14 @@ describe('ini_parse_line', function()
     it('throws error when line has no =', function()
         assert.error(function()
             ini_parse_line('name')
-        end, 'Expected `name` line to have `=`.')
+        end, ('Expected `name:%s` line to have `=`.'):format(ini_dump('name')))
         assert.error(function()
             ini_parse_line('key')
-        end, 'Expected `key` line to have `=`.')
+        end, ('Expected `key:%s` line to have `=`.'):format(ini_dump('key')))
 
         assert.error(function()
             ini_parse_line('InvalidLine')
-        end, 'Expected `InvalidLine` line to have `=`.')
+        end, ('Expected `InvalidLine:%s` line to have `=`.'):format(ini_dump('InvalidLine')))
     end)
 
     it('throws error when line has more than one =', function()
@@ -147,6 +147,7 @@ boolean1=true
 boolean2=false
 
 city=middle-east
+
 ]]
     end)
 
