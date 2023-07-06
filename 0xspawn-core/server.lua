@@ -78,6 +78,26 @@ function strategy_recent_location_setup(config)
     end)
 end
 
+function strategy_random_location_setup(config)
+    local coords = exports['0xspawn-coords']
+
+    local function spawn_me(playerServerId)
+        local location = coords:getRandom()
+        log('spawning', GetPlayerName(playerServerId), location)
+        TriggerClientEvent(COMMANDS.PROCESS_SPAWN, playerServerId, location)
+    end
+
+    RegisterNetEvent(COMMANDS.SPAWN_ME, function()
+        local playerServerId = source
+        spawn_me(playerServerId)
+    end)
+
+    RegisterNetEvent('baseevents:onPlayerDied', function()
+        local playerServerId = source
+        spawn_me(playerServerId)
+    end)
+end
+
 function build_context()
     local config         = {}
 
@@ -135,3 +155,12 @@ CreateThread(function()
     end
 end)
 
+
+RegisterCommand('0xspawn:dump', function()
+    local coords = repo_dump_all_player_coords()
+    log('all player coords', coords)
+    local resName = GetCurrentResourceName()
+    local data = json.encode(coords)
+    log('saving to a file in', resName, type(data), data)
+    SaveResourceFile(resName, 'dump.json', data, #data)
+end)

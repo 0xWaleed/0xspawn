@@ -47,6 +47,16 @@ function strategy_recent_location_setup(config)
     wrapper()
 end
 
+function strategy_random_location_setup(config)
+    RegisterNetEvent(COMMANDS.PROCESS_SPAWN, function(coords)
+        log('spawning', coords)
+        sm:forceRespawn()
+        sm:spawnPlayer(coords)
+    end)
+
+    TriggerServerEvent(COMMANDS.SPAWN_ME)
+end
+
 function setup(config)
     log('setting up with config', config)
 

@@ -39,8 +39,31 @@ function repo_delete_player_coords(key)
 end
 
 function repo_retrieve_player_coords(key)
-    key = ('0xspawn:player:%s:coords'):format(key)
+    key        = ('0xspawn:player:%s:coords'):format(key)
     local data = repo_retrieve_json_data(key)
     log('repo retrieving coords', key, data)
     return data
+end
+
+function repo_dump_all_player_coords()
+    local handle = StartFindKvp('0xspawn:player')
+    if handle == -1 then
+        return {}
+    end
+
+    local out = {}
+    local key
+    repeat
+        key = FindKvp(handle)
+
+        if key then
+            local value = json.decode(GetResourceKvpString(key) or '{}')
+            out[key]    = value
+        end
+
+    until not key
+
+    EndFindKvp(handle)
+
+    return out
 end
