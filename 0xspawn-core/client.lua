@@ -5,6 +5,27 @@
 
 local sm = exports['spawnmanager']
 
+function on_death(callback)
+    AddEventHandler('gameEventTriggered', function(name, data)
+        if name ~= 'CEventNetworkEntityDamage' then
+            return
+        end
+
+        local victim = data[1]
+        local isDead = data[4] == 1
+
+        if not isDead then
+            return
+        end
+
+        if victim ~= PlayerPedId() then
+            return
+        end
+
+        callback()
+    end)
+end
+
 function strategy_recent_location_setup(config)
     local interval = config.saveInterval
 
@@ -74,6 +95,11 @@ function setup(config)
 
     log(('done setting up strategy [%s]'):format(strategy))
 end
+
+on_death(function()
+    log('notifying server about the death')
+    TriggerServerEvent(EVENTS.DIED)
+end)
 
 sm:setAutoSpawn(false)
 

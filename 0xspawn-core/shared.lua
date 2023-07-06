@@ -10,6 +10,9 @@ COMMANDS.SETUP         = '0xspawn:setup'
 COMMANDS.PROCESS_SPAWN = '0xspanw:spawn'
 COMMANDS.SPAWN_ME      = '0xspawn:spawn-me'
 
+EVENTS                 = {}
+EVENTS.DIED            = '0xspawn:died'
+
 STRATEGIES             = {
     ['1'] = 'strategy_random_location',
     ['2'] = 'strategy_last_died_location',

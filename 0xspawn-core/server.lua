@@ -64,7 +64,7 @@ function strategy_recent_location_setup(config)
         spawn_me(playerServerId)
     end)
 
-    RegisterNetEvent('baseevents:onPlayerDied', function()
+    RegisterNetEvent('died', function()
         local playerServerId = source
         log('player died', GetPlayerName(playerServerId))
         Wait(5000)
@@ -92,7 +92,7 @@ function strategy_random_location_setup(config)
         spawn_me(playerServerId)
     end)
 
-    RegisterNetEvent('baseevents:onPlayerDied', function()
+    RegisterNetEvent(EVENTS.DIED, function()
         local playerServerId = source
         spawn_me(playerServerId)
     end)
