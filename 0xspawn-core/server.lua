@@ -3,16 +3,26 @@
 --- DateTime: 7/4/23 6:03 PM
 ---
 
-function get_player_license(playerServerId)
-    -- TODO: support sv_lan=0 ?
-
-    local identifiers      = GetPlayerIdentifiers(playerServerId)
-    local licenseKeyLength = ('license:'):len()
+function extract_identifier_by_type(identifiers, type)
+    local typeWithColon = ('%s:'):format(type)
+    local typeLength    = typeWithColon:len()
 
     for _, identifier in ipairs(identifiers) do
-        if identifier:sub(1, licenseKeyLength) == 'license:' then
+        if identifier:sub(1, typeLength) == typeWithColon then
             return identifier
         end
+    end
+end
+
+function get_player_license(playerServerId)
+    local identifiers = GetPlayerIdentifiers(playerServerId)
+
+    log('identifiers', identifiers)
+
+    local license = extract_identifier_by_type(identifiers, 'license') or extract_identifier_by_type(identifiers, 'ip')
+
+    if license then
+        return license
     end
 
     error(('Unable to key player identifier'):format(playerServerId))
@@ -37,7 +47,7 @@ function strategy_recent_location_setup(config)
         if not data then
             local coords = config.defaultCoords
             log('player coords is not found, fallback to default coord', coords)
-            data         = {
+            data = {
                 x = coords[1] or 0,
                 y = coords[2] or 0,
                 z = coords[3] or 0,
@@ -72,7 +82,7 @@ function build_context()
     local config         = {}
 
     config.strategy      = GetConvar('0xspawn.strategy', '1')
-    config.saveInterval = tonumber(
+    config.saveInterval  = tonumber(
             GetConvar('0xspawn.save-interval', tostring('5000'))
     ) or 5000
 
