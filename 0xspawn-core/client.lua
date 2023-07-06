@@ -38,6 +38,7 @@ function strategy_recent_location_setup(config)
 
     RegisterNetEvent(COMMANDS.PROCESS_SPAWN, function(coords)
         log('spawning', coords)
+        sm:forceRespawn()
         sm:spawnPlayer(coords)
     end)
 
