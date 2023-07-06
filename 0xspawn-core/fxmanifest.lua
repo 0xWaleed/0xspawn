@@ -7,7 +7,14 @@ fx_version 'cerulean'
 
 game 'gta5'
 
+shared_script 'log.lua'
+shared_script 'shared.lua'
+
+
+
 client_script 'client.lua'
+
+server_script 'repo.lua'
 server_script 'server.lua'
 
 dependency 'spawnmanager'
