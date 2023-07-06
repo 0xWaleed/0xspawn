@@ -83,6 +83,10 @@ function strategy_random_location_setup(config)
 
     local function spawn_me(playerServerId)
         local location = coords:getRandom()
+        if not location then
+            local c  = config.defaultCoords
+            location = { x = c[1], y = c[2], z = c[3], heading = c[4], model = c[5] }
+        end
         log('spawning', GetPlayerName(playerServerId), location)
         TriggerClientEvent(COMMANDS.PROCESS_SPAWN, playerServerId, location)
     end
@@ -155,12 +159,11 @@ CreateThread(function()
     end
 end)
 
-
 RegisterCommand('0xspawn:dump', function()
     local coords = repo_dump_all_player_coords()
     log('all player coords', coords)
     local resName = GetCurrentResourceName()
-    local data = json.encode(coords)
+    local data    = json.encode(coords)
     log('saving to a file in', resName, type(data), data)
     SaveResourceFile(resName, 'dump.json', data, #data)
 end)

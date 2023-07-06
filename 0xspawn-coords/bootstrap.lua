@@ -20,6 +20,10 @@ end
 
 
 exports('getRandom', function()
+    if coordsCount == 0 then
+        return nil
+    end
+
     local index = math.random(coordsCount)
     log('getting a random location at', index, coordsCount)
 
