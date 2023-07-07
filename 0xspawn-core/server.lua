@@ -64,11 +64,13 @@ function strategy_recent_location_setup(config)
         spawn_me(playerServerId)
     end)
 
-    RegisterNetEvent('died', function()
+    RegisterNetEvent(EVENTS.DIED, function()
         local playerServerId = source
         log('player died', GetPlayerName(playerServerId))
         Wait(5000)
-        spawn_me(playerServerId)
+        Citizen.SetTimeout(config.timeInBetween, function()
+            spawn_me(playerServerId)
+        end)
     end)
 
     RegisterCommand('0xspawn:delete', function(playerServerId)
@@ -98,7 +100,9 @@ function strategy_random_location_setup(config)
 
     RegisterNetEvent(EVENTS.DIED, function()
         local playerServerId = source
-        spawn_me(playerServerId)
+        Citizen.SetTimeout(config.timeInBetween, function()
+            spawn_me(playerServerId)
+        end)
     end)
 end
 
@@ -111,6 +115,7 @@ function build_context()
     ) or 5000
 
     config.defaultCoords = json.decode(GetConvar('0xspawn.default-coord', '[]'))
+    config.timeInBetween = tonumber(GetConvar('0xspawn.time-in-between', '3000'))
 
     return {
         config = config
