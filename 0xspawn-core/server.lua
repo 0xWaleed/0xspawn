@@ -67,17 +67,19 @@ function strategy_recent_location_setup(config)
     RegisterNetEvent(EVENTS.DIED, function()
         local playerServerId = source
         log('player died', GetPlayerName(playerServerId))
-        Wait(5000)
         Citizen.SetTimeout(config.timeInBetween, function()
             spawn_me(playerServerId)
         end)
     end)
 
-    RegisterCommand('0xspawn:delete', function(playerServerId)
-        local license = get_player_license(playerServerId)
-        log('deleting player data', GetPlayerName(playerServerId), license)
-        repo_delete_player_coords(license)
-    end)
+    if config.debug then
+        log('registering debug commands')
+        RegisterCommand('0xspawn:delete', function(playerServerId)
+            local license = get_player_license(playerServerId)
+            log('deleting player data', GetPlayerName(playerServerId), license)
+            repo_delete_player_coords(license)
+        end)
+    end
 end
 
 function strategy_random_location_setup(config)
@@ -110,6 +112,7 @@ function build_context()
     local config         = {}
 
     config.strategy      = GetConvar('0xspawn.strategy', '1')
+    config.debug         = GetConvar('0xspawn.debug', 'false') == 'true'
     config.saveInterval  = tonumber(
             GetConvar('0xspawn.save-interval', tostring('5000'))
     ) or 5000
@@ -157,18 +160,21 @@ AddEventHandler('playerJoining', function()
     client_setup(source)
 end)
 
-CreateThread(function()
-    Wait(3000)
-    for _, player in ipairs(GetPlayers()) do
-        client_setup(player)
-    end
-end)
+if context.config.debug then
+    log('registering debug commands & invoke setup manually')
+    CreateThread(function()
+        Wait(3000)
+        for _, player in ipairs(GetPlayers()) do
+            client_setup(player)
+        end
+    end)
 
-RegisterCommand('0xspawn:dump', function()
-    local coords = repo_dump_all_player_coords()
-    log('all player coords', coords)
-    local resName = GetCurrentResourceName()
-    local data    = json.encode(coords)
-    log('saving to a file in', resName, type(data), data)
-    SaveResourceFile(resName, 'dump.json', data, #data)
-end)
+    RegisterCommand('0xspawn:dump', function()
+        local coords = repo_dump_all_player_coords()
+        log('all player coords', coords)
+        local resName = GetCurrentResourceName()
+        local data    = json.encode(coords)
+        log('saving to a file in', resName, type(data), data)
+        SaveResourceFile(resName, 'dump.json', data, #data)
+    end)
+end
