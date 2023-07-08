@@ -36,7 +36,7 @@ function strategy_recent_location_setup(config)
         log('recent location saved', asJson)
     end
 
-    RegisterNetEvent(COMMANDS.PERSIST, persist_location)
+    adapter_register_net_event(COMMANDS.PERSIST, persist_location)
 
     local function spawn_me(playerServerId)
         local license = get_player_license(playerServerId)
@@ -56,15 +56,15 @@ function strategy_recent_location_setup(config)
             }
         end
 
-        TriggerClientEvent(COMMANDS.PROCESS_SPAWN, playerServerId, data)
+        adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, data)
     end
 
-    RegisterNetEvent(COMMANDS.SPAWN_ME, function()
+    adapter_register_net_event(COMMANDS.SPAWN_ME, function()
         local playerServerId = source
         spawn_me(playerServerId)
     end)
 
-    RegisterNetEvent(EVENTS.DIED, function()
+    adapter_register_net_event(EVENTS.DIED, function()
         local playerServerId = source
         log('player died', GetPlayerName(playerServerId))
         Citizen.SetTimeout(config.timeInBetween, function()
@@ -74,7 +74,7 @@ function strategy_recent_location_setup(config)
 
     if config.debug then
         log('registering debug commands')
-        RegisterCommand('0xspawn:delete', function(playerServerId)
+        adapter_register_command('0xspawn:delete', function(playerServerId)
             local license = get_player_license(playerServerId)
             log('deleting player data', GetPlayerName(playerServerId), license)
             repo_delete_player_coords(license)
@@ -92,15 +92,15 @@ function strategy_random_location_setup(config)
             location = { x = c[1], y = c[2], z = c[3], heading = c[4], model = c[5] }
         end
         log('spawning', GetPlayerName(playerServerId), location)
-        TriggerClientEvent(COMMANDS.PROCESS_SPAWN, playerServerId, location)
+        adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, location)
     end
 
-    RegisterNetEvent(COMMANDS.SPAWN_ME, function()
+    adapter_register_net_event(COMMANDS.SPAWN_ME, function()
         local playerServerId = source
         spawn_me(playerServerId)
     end)
 
-    RegisterNetEvent(EVENTS.DIED, function()
+    adapter_register_net_event(EVENTS.DIED, function()
         local playerServerId = source
         Citizen.SetTimeout(config.timeInBetween, function()
             spawn_me(playerServerId)
@@ -153,10 +153,11 @@ local context = build_context()
 setup(context)
 
 function client_setup(playerServerId)
-    TriggerClientEvent(COMMANDS.SETUP, playerServerId, context.config)
+    log('triggering client setup', playerServerId)
+    adapter_trigger_remote_event(COMMANDS.SETUP, playerServerId, context.config)
 end
 
-AddEventHandler('playerJoining', function()
+adapter_register_event('playerJoining', function()
     client_setup(source)
 end)
 
@@ -169,7 +170,7 @@ if context.config.debug then
         end
     end)
 
-    RegisterCommand('0xspawn:dump', function()
+    adapter_register_command('0xspawn:dump', function()
         local coords = repo_dump_all_player_coords()
         log('all player coords', coords)
         local resName = GetCurrentResourceName()

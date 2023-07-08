@@ -6,7 +6,7 @@
 local sm = exports['spawnmanager']
 
 function on_death(callback)
-    AddEventHandler('gameEventTriggered', function(name, data)
+    adapter_register_event('gameEventTriggered', function(name, data)
         if name ~= 'CEventNetworkEntityDamage' then
             return
         end
@@ -48,7 +48,7 @@ function strategy_recent_location_setup(config)
             model = model,
         }
 
-        TriggerServerEvent(COMMANDS.PERSIST, data)
+        adapter_trigger_remote_event(COMMANDS.PERSIST, data)
         log('data persist sent', json.encode(data))
     end
 
@@ -57,25 +57,25 @@ function strategy_recent_location_setup(config)
         SetTimeout(interval, wrapper)
     end
 
-    RegisterNetEvent(COMMANDS.PROCESS_SPAWN, function(coords)
+    adapter_register_net_event(COMMANDS.PROCESS_SPAWN, function(coords)
         log('spawning', coords)
         sm:forceRespawn()
         sm:spawnPlayer(coords)
     end)
 
-    TriggerServerEvent(COMMANDS.SPAWN_ME)
+    adapter_trigger_remote_event(COMMANDS.SPAWN_ME)
 
     wrapper()
 end
 
 function strategy_random_location_setup(config)
-    RegisterNetEvent(COMMANDS.PROCESS_SPAWN, function(coords)
+    adapter_register_net_event(COMMANDS.PROCESS_SPAWN, function(coords)
         log('spawning', coords)
         sm:forceRespawn()
         sm:spawnPlayer(coords)
     end)
 
-    TriggerServerEvent(COMMANDS.SPAWN_ME)
+    adapter_trigger_remote_event(COMMANDS.SPAWN_ME)
 end
 
 function setup(config)
@@ -98,9 +98,9 @@ end
 
 on_death(function()
     log('notifying server about the death')
-    TriggerServerEvent(EVENTS.DIED)
+    adapter_trigger_remote_event(EVENTS.DIED)
 end)
 
 sm:setAutoSpawn(false)
 
-RegisterNetEvent(COMMANDS.SETUP, setup)
+adapter_register_net_event(COMMANDS.SETUP, setup)

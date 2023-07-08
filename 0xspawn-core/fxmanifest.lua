@@ -8,6 +8,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 shared_script 'log.lua'
+shared_script 'adapter.lua'
 shared_script 'shared.lua'
 
 
