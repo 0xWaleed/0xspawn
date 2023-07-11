@@ -161,7 +161,8 @@ function strategy_ui_location_selector_with_recent_location_setup(config)
                 x = data.x,
                 y = data.y,
                 z = data.z,
-                heading = data.heading
+                heading = data.heading,
+                imageUrl = config.recentImageUrl
             })
         end
 
@@ -186,7 +187,8 @@ function strategy_ui_location_selector_with_recent_location_setup(config)
                 x = data.x,
                 y = data.y,
                 z = data.z,
-                heading = data.heading
+                heading = data.heading,
+                imageUrl = config.recentImageUrl
             })
         end
 
@@ -200,6 +202,7 @@ function build_context()
     local config = {}
 
     config.strategy = GetConvar('0xspawn.strategy', '1')
+    config.recentImageUrl = GetConvar('0xspawn.recent-image-url', '')
     config.debug = GetConvar('0xspawn.debug', 'false') == 'true'
     config.saveInterval = tonumber(
             GetConvar('0xspawn.save-interval', tostring('5000'))
