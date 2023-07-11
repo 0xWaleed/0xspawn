@@ -145,37 +145,6 @@ function strategy_ui_location_selector_with_recent_location_setup(config)
 
     adapter_register_net_event(COMMANDS.PERSIST, persist_location)
 
-    local interval = config.saveInterval
-
-    local function persist_location()
-        local playerPed = PlayerPedId()
-        local coords = GetEntityCoords(playerPed)
-        local model = GetEntityModel(playerPed)
-        local heading = GetEntityHeading(playerPed)
-
-        if coords.x == 0 then
-            log('You are out of the world, aborting saving your location')
-            return
-        end
-
-        local data = {
-            x = coords.x,
-            y = coords.y,
-            z = coords.z,
-            heading = heading,
-            model = model,
-        }
-
-        adapter_trigger_remote_event(COMMANDS.PERSIST, data)
-        log('data persist sent', json.encode(data))
-    end
-
-    function wrapper()
-        persist_location()
-        SetTimeout(interval, wrapper)
-    end
-
-
     adapter_register_net_event(COMMANDS.SPAWN_ME, function()
         local playerServerId = source
 
