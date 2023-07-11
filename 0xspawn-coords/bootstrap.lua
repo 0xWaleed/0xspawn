@@ -5,37 +5,49 @@
 
 
 local coords = {}
-local coordsCount = 0
+
+local function is_exist(name)
+    for _, coord in pairs(coords) do
+        if coord.name == name then
+            return true
+        end
+    end
+    return false
+end
+
+local function generate_id(name)
+    local key = GetHashKey(name)
+    key = tostring(key)
+    key = key:gsub('%-', '1337')
+    return key
+end
 
 function loc(name)
+    --TODO: generate id from name
     return function(o)
-        -- TODO: validate
-        if not coords[name] then
-            coordsCount = coordsCount + 1
+        -- TODO: validate o
+        if is_exist(name) then
+            return
         end
-        coords[name] = o
+        o.id = generate_id(name)
+        table.insert(coords, o)
         log('adding location', name, o)
     end
 end
 
+function getCoords()
+    return coords
+end
 
-exports('getRandom', function()
-    if coordsCount == 0 then
-        return nil
-    end
-
+function getRandom()
+    local coordsCount = #coords
     local index = math.random(coordsCount)
     log('getting a random location at', index, coordsCount)
+    return coords[index]
+end
 
-    local i = 1
-    for _, coord in pairs(coords) do
-        if i == index then
-            log('found a random location', coord)
-            return coord
-        end
-        log('moving to next coord', i, index)
-        i = i + 1
-    end
-    -- TODO: reconsider this
-    return nil
+RegisterNetEvent('0xspawn:asking-for-coords', function()
+    log('asking for coords')
+    local playerServerId = source
+    TriggerClientEvent('0xspawn:coords', playerServerId, getCoords())
 end)

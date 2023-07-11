@@ -19,3 +19,4 @@ server_script 'repo.lua'
 server_script 'server.lua'
 
 dependency 'spawnmanager'
+dependency '0xspawn-coords'

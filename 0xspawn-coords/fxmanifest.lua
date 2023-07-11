@@ -14,3 +14,12 @@ shared_script 'log.lua'
 server_script 'bootstrap.lua'
 
 server_script 'coords.lua'
+
+client_script 'api.lua'
+
+
+file 'js/*.js'
+
+server_export 'getCoords'
+server_export 'getRandom'
+

@@ -5,7 +5,7 @@
 
 function extract_identifier_by_type(identifiers, type)
     local typeWithColon = ('%s:'):format(type)
-    local typeLength    = typeWithColon:len()
+    local typeLength = typeWithColon:len()
 
     for _, identifier in ipairs(identifiers) do
         if identifier:sub(1, typeLength) == typeWithColon then
@@ -31,7 +31,7 @@ end
 function strategy_recent_location_setup(config)
     local function persist_location(data)
         local playerServerId = source
-        local license        = get_player_license(playerServerId)
+        local license = get_player_license(playerServerId)
         repo_persist_player_coords(license, data)
         log('recent location saved', asJson)
     end
@@ -40,7 +40,7 @@ function strategy_recent_location_setup(config)
 
     local function spawn_me(playerServerId)
         local license = get_player_license(playerServerId)
-        local data    = repo_retrieve_player_coords(license)
+        local data = repo_retrieve_player_coords(license)
 
         log('spawning player', GetPlayerName(playerServerId), data)
 
@@ -88,7 +88,7 @@ function strategy_random_location_setup(config)
     local function spawn_me(playerServerId)
         local location = coords:getRandom()
         if not location then
-            local c  = config.defaultCoords
+            local c = config.defaultCoords
             location = { x = c[1], y = c[2], z = c[3], heading = c[4], model = c[5] }
         end
         log('spawning', GetPlayerName(playerServerId), location)
@@ -108,12 +108,37 @@ function strategy_random_location_setup(config)
     end)
 end
 
-function build_context()
-    local config         = {}
+function strategy_ui_location_selector_setup(config)
+    local coordsService = exports['0xspawn-coords']
 
-    config.strategy      = GetConvar('0xspawn.strategy', '1')
-    config.debug         = GetConvar('0xspawn.debug', 'false') == 'true'
-    config.saveInterval  = tonumber(
+    adapter_register_net_event(COMMANDS.SPAWN_ME, function()
+        local playerServerId = source
+
+        local coords = coordsService:getCoords()
+
+        Citizen.SetTimeout(config.timeInBetween, function()
+            adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
+        end)
+    end)
+
+    adapter_register_net_event(EVENTS.DIED, function()
+        local playerServerId = source
+
+        local coords = coordsService:getCoords()
+
+        Citizen.SetTimeout(config.timeInBetween, function()
+            adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
+        end)
+    end)
+
+end
+
+function build_context()
+    local config = {}
+
+    config.strategy = GetConvar('0xspawn.strategy', '1')
+    config.debug = GetConvar('0xspawn.debug', 'false') == 'true'
+    config.saveInterval = tonumber(
             GetConvar('0xspawn.save-interval', tostring('5000'))
     ) or 5000
 
@@ -134,7 +159,7 @@ function setup(context)
         context.current()
     end
 
-    local strategy      = (STRATEGIES[config.strategy] or STRATEGIES['default']) .. '_setup'
+    local strategy = (STRATEGIES[config.strategy] or STRATEGIES['default']) .. '_setup'
 
     local strategySetup = _G[strategy]
 
@@ -174,7 +199,7 @@ if context.config.debug then
         local coords = repo_dump_all_player_coords()
         log('all player coords', coords)
         local resName = GetCurrentResourceName()
-        local data    = json.encode(coords)
+        local data = json.encode(coords)
         log('saving to a file in', resName, type(data), data)
         SaveResourceFile(resName, 'dump.json', data, #data)
     end)

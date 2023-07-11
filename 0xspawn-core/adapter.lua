@@ -26,4 +26,8 @@ else
         log('triggering client event', name, ...)
         TriggerServerEvent(name, ...)
     end
+
+    function adapter_register_nui_callback(name, callback)
+        RegisterNUICallback(name, callback)
+    end
 end

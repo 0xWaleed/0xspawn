@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>0xSpawn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <script src="nui://0xspawn-coords/js/coords.js" defer></script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Audiowide', cursive;
+        }
+
+        #container {
+            display: none;
+
+            flex-direction: column;
+            width: 80%;
+            height: 80%;
+            padding: 25px;
+            background-color: #00000040;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            font-size: 3rem;
+            color: white;
+            text-align: center;
+        }
+
+        .cards {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            overflow: auto;
+            grid-auto-flow: row;
+            grid-auto-rows: minmax(300px, 100%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #c4c4c430;
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: #f1f1f100;
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-corner {
+            background-color: #f1f1f100;
+        }
+    </style>
+</head>
+<body>
+    <template id="0xspawn-card-template">
+        <style>
+            .card {
+                container-type: inline-size;
+                display: block;
+                align-items: center;
+                background-color: gray;
+                position: relative;
+                overflow: hidden;
+                height: 100%;
+                width: 100%;
+                transition: all ease-in-out 200ms;
+                border-radius: 5px;
+            }
+
+            .card:hover {
+                transform: scale(1.05)
+            }
+
+            h3 {
+                padding: 10px;
+                color: white;
+                position: absolute;
+                background-color: #000000A0;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                text-align: center;
+                margin: 0;
+            }
+
+            .card {
+                background-image: url({{image-url}});
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                cursor: pointer;
+            }
+
+            @container {
+                h3 {
+                    font-size: 3cqw;
+                }
+            }
+        </style>
+        <div class="card">
+            <h3>{{label}}</h3>
+        </div>
+    </template>
+    <div id="container">
+        <div class="header">Locations</div>
+        <div id="cards" class="cards">
+
+        </div>
+    </div>
+
+    <script>
+      const container = document.getElementById("container")
+      window.addEventListener("spawn-requested", (e) => {
+        console.log("spawn requested");
+        container.style.display = "flex";
+      })
+      window.addEventListener("spawned", () => {
+        container.style.display = "none";
+      });
+    </script>
+</body>
+</html>

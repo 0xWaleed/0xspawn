@@ -31,9 +31,9 @@ function strategy_recent_location_setup(config)
 
     local function persist_location()
         local playerPed = PlayerPedId()
-        local coords    = GetEntityCoords(playerPed)
-        local model     = GetEntityModel(playerPed)
-        local heading   = GetEntityHeading(playerPed)
+        local coords = GetEntityCoords(playerPed)
+        local model = GetEntityModel(playerPed)
+        local heading = GetEntityHeading(playerPed)
 
         if coords.x == 0 then
             log('You are out of the world, aborting saving your location')
@@ -78,10 +78,44 @@ function strategy_random_location_setup(config)
     adapter_trigger_remote_event(COMMANDS.SPAWN_ME)
 end
 
+function strategy_ui_location_selector_setup(config)
+    local ui = exports['0xspawn-ui']
+    local currentCoords
+
+    function find_coord_by_id(id, coords)
+        for _, location in ipairs(coords) do
+            if location.id == id then
+                return location
+            end
+        end
+    end
+
+    adapter_register_net_event(COMMANDS.PROCESS_SPAWN, function(coords)
+        log('process spawn', coords)
+        currentCoords = coords
+        ui:show(coords)
+    end)
+
+    adapter_register_nui_callback('spawn', function(id, responseCallback)
+        local coord = find_coord_by_id(id, currentCoords)
+        if not coord then
+            responseCallback({ ok = false })
+            error('invalid coordinate')
+        end
+        log('process spawn after user selection', id)
+        sm:forceRespawn()
+        sm:spawnPlayer(coord)
+        responseCallback({ ok = true })
+        ui:hide()
+    end)
+
+    adapter_trigger_remote_event(COMMANDS.SPAWN_ME)
+end
+
 function setup(config)
     log('setting up with config', config)
 
-    local strategy      = (STRATEGIES[config.strategy] or STRATEGIES['default']) .. '_setup'
+    local strategy = (STRATEGIES[config.strategy] or STRATEGIES['default']) .. '_setup'
 
     local strategySetup = _G[strategy]
 
