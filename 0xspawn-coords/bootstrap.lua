@@ -23,7 +23,6 @@ local function generate_id(name)
 end
 
 function loc(name)
-    --TODO: generate id from name
     return function(o)
         -- TODO: validate o
         if is_exist(name) then
@@ -45,9 +44,3 @@ function getRandom()
     log('getting a random location at', index, coordsCount)
     return coords[index]
 end
-
-RegisterNetEvent('0xspawn:asking-for-coords', function()
-    log('asking for coords')
-    local playerServerId = source
-    TriggerClientEvent('0xspawn:coords', playerServerId, getCoords())
-end)
