@@ -29,7 +29,7 @@
       const card = newTemplate.content.cloneNode(true);
       shadow.append(card);
       this.onclick = async () => {
-        await invokeCallback("0xspawn-core/spawn", id);
+        await invokeCallback("0xspawn-manager/spawn", id);
         this.dispatchEvent(new CustomEvent("spawned", {
           bubbles: true
         }));
@@ -41,9 +41,11 @@
 
   function handleSpawnUI(locations) {
     const spawnContainer = document.getElementById("cards");
+
     if (!spawnContainer) {
       return;
     }
+
     window.dispatchEvent(new CustomEvent("spawn-requested", {
       detail: locations
     }));
