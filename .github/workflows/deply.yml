@@ -1,0 +1,42 @@
+name: 0xW-Deploy
+
+on:
+  push:
+    tags:
+      - v*
+
+
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Resolve version
+        run: |
+          echo version=$(git tag | sort -V | tail -1) >> $GITHUB_ENV
+
+      - name: Preparing Files
+        run: |
+          mkdir \[0xspawn\]
+          mv 0xspawn-manager \[0xspawn\]
+          mv 0xspawn-ui \[0xspawn\]
+          mv 0xspawn-coords \[0xspawn\]
+
+      - name: Add meta files
+        run: |
+          echo "${{vars.IMPORTANT}}" > \[0xspawn\]/IMPORTANT.txt
+
+      - name: Zipping
+        run: |
+          zip -r ./0xspawn-${{ env.version }}.zip \[0xspawn\]
+
+      - name: Send to Discord Channel
+        uses: sinshutu/upload-to-discord@c04454f4fbfd38079cbcd6f68492bd5d427556ce
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: ./0xspawn-${{ env.version }}.zip
