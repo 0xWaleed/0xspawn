@@ -18,5 +18,6 @@ STRATEGIES             = {
     ['2'] = 'strategy_last_died_location',
     ['3'] = 'strategy_recent_location',
     ['4'] = 'strategy_ui_location_selector',
+    ['5'] = 'strategy_ui_location_selector_with_recent_location',
     ['default'] = 'strategy_random_location',
 }

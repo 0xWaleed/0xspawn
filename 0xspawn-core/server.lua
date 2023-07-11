@@ -133,6 +133,100 @@ function strategy_ui_location_selector_setup(config)
 
 end
 
+function strategy_ui_location_selector_with_recent_location_setup(config)
+    local coordsService = exports['0xspawn-coords']
+
+    local function persist_location(data)
+        local playerServerId = source
+        local license = get_player_license(playerServerId)
+        repo_persist_player_coords(license, data)
+        log('recent location saved', asJson)
+    end
+
+    adapter_register_net_event(COMMANDS.PERSIST, persist_location)
+
+    local interval = config.saveInterval
+
+    local function persist_location()
+        local playerPed = PlayerPedId()
+        local coords = GetEntityCoords(playerPed)
+        local model = GetEntityModel(playerPed)
+        local heading = GetEntityHeading(playerPed)
+
+        if coords.x == 0 then
+            log('You are out of the world, aborting saving your location')
+            return
+        end
+
+        local data = {
+            x = coords.x,
+            y = coords.y,
+            z = coords.z,
+            heading = heading,
+            model = model,
+        }
+
+        adapter_trigger_remote_event(COMMANDS.PERSIST, data)
+        log('data persist sent', json.encode(data))
+    end
+
+    function wrapper()
+        persist_location()
+        SetTimeout(interval, wrapper)
+    end
+
+
+    adapter_register_net_event(COMMANDS.SPAWN_ME, function()
+        local playerServerId = source
+
+        local coords = coordsService:getCoords()
+
+        local license = get_player_license(playerServerId)
+        local data = repo_retrieve_player_coords(license)
+
+        if data then
+            log('adding recent location to coords', data)
+            table.insert(coords, 1, {
+                id = tostring(GetHashKey('<recent-location>')),
+                label = 'Recent Location',
+                x = data.x,
+                y = data.y,
+                z = data.z,
+                heading = data.heading
+            })
+        end
+
+        Citizen.SetTimeout(config.timeInBetween, function()
+            adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
+        end)
+    end)
+
+    adapter_register_net_event(EVENTS.DIED, function()
+        local playerServerId = source
+
+        local coords = coordsService:getCoords()
+
+        local license = get_player_license(playerServerId)
+        local data = repo_retrieve_player_coords(license)
+
+        if data then
+            log('adding recent location to coords', data)
+            table.insert(coords, 1, {
+                id = tostring(GetHashKey('<recent-location>')),
+                label = 'Recent Location',
+                x = data.x,
+                y = data.y,
+                z = data.z,
+                heading = data.heading
+            })
+        end
+
+        Citizen.SetTimeout(config.timeInBetween, function()
+            adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
+        end)
+    end)
+end
+
 function build_context()
     local config = {}
 
