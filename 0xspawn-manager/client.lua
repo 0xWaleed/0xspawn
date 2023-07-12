@@ -36,7 +36,7 @@ function strategy_recent_location_setup(config)
         local heading = GetEntityHeading(playerPed)
 
         if coords.x == 0 then
-            log('You are out of the world, aborting saving your location')
+            log('You are out of the world, abort saving location')
             return
         end
 
@@ -125,7 +125,7 @@ function strategy_ui_location_selector_with_recent_location_setup(config)
         local heading = GetEntityHeading(playerPed)
 
         if coords.x == 0 then
-            log('You are out of the world, aborting saving your location')
+            log('You are out of the world, abort saving your location')
             return
         end
 

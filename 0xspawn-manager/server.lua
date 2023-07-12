@@ -25,7 +25,7 @@ function get_player_license(playerServerId)
         return license
     end
 
-    error(('Unable to key player identifier'):format(playerServerId))
+    error(('Unable to get player identifier'):format(playerServerId))
 end
 
 function strategy_recent_location_setup(config)
