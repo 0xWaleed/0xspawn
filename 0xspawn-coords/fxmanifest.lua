@@ -21,5 +21,6 @@ client_script 'api.lua'
 file 'js/*.js'
 
 server_export 'getCoords'
+server_export 'getFirstCoords'
 server_export 'getRandom'
 

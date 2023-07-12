@@ -29,6 +29,12 @@ function get_player_license(playerServerId)
 end
 
 function strategy_recent_location_setup(config)
+    local coords = exports['0xspawn-coords']:getFirstCoords()
+
+    if not coords then
+        error('expect to define at least one location')
+    end
+
     local function persist_location(data)
         local playerServerId = source
         local license = get_player_license(playerServerId)
@@ -45,15 +51,8 @@ function strategy_recent_location_setup(config)
         log('spawning player', GetPlayerName(playerServerId), data)
 
         if not data then
-            local coords = config.defaultCoords
             log('player coords is not found, fallback to default coord', coords)
-            data = {
-                x = coords[1] or 0,
-                y = coords[2] or 0,
-                z = coords[3] or 0,
-                heading = coords[4] or 0,
-                model = 'player_zero'
-            }
+            data = coords
         end
 
         adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, data)
@@ -83,14 +82,16 @@ function strategy_recent_location_setup(config)
 end
 
 function strategy_random_location_setup(config)
-    local coords = exports['0xspawn-coords']
+    local coordsService = exports['0xspawn-coords']
+
+    local firstCoords = coordsService:getFirstCoords()
+
+    if not firstCoords then
+        error('expect to define at least one location')
+    end
 
     local function spawn_me(playerServerId)
-        local location = coords:getRandom()
-        if not location then
-            local c = config.defaultCoords
-            location = { x = c[1], y = c[2], z = c[3], heading = c[4], model = c[5] }
-        end
+        local location = coordsService:getRandom() or firstCoords
         log('spawning', GetPlayerName(playerServerId), location)
         adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, location)
     end
@@ -208,7 +209,6 @@ function build_context()
             GetConvar('0xspawn.save-interval', tostring('5000'))
     ) or 5000
 
-    config.defaultCoords = json.decode(GetConvar('0xspawn.default-coord', '[]'))
     config.timeInBetween = tonumber(GetConvar('0xspawn.time-in-between', '3000'))
 
     return {

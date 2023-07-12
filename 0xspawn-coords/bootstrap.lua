@@ -38,6 +38,10 @@ function getCoords()
     return coords
 end
 
+function getFirstCoords()
+    return coords[1]
+end
+
 function getRandom()
     local coordsCount = #coords
     local index = math.random(coordsCount)
