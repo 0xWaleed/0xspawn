@@ -179,6 +179,12 @@ function strategy_ui_location_selector_with_recent_location_setup(config)
     adapter_trigger_remote_event(COMMANDS.SPAWN_ME)
 end
 
+function register_debug_commands()
+    adapter_register_command('die', function()
+        SetEntityHealth(PlayerPedId(), 0)
+    end)
+end
+
 function setup(config)
     log('setting up with config', config)
 
@@ -195,6 +201,10 @@ function setup(config)
     strategySetup(config)
 
     log(('done setting up strategy [%s]'):format(strategy))
+
+    if config.debug then
+        register_debug_commands()
+    end
 end
 
 on_death(function()
