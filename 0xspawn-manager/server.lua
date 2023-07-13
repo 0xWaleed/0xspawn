@@ -207,7 +207,7 @@ function build_context()
             GetConvar('0xspawn.save-interval', tostring('5000'))
     ) or 5000
 
-    config.timeInBetween = tonumber(GetConvar('0xspawn.time-in-between', '3000'))
+    config.timeInBetween = (tonumber(GetConvar('0xspawn.time-in-between', '3')) or 3) * 1000
 
     return {
         config = config
