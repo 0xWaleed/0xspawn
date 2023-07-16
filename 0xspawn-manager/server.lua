@@ -165,9 +165,7 @@ function strategy_ui_location_selector_with_recent_location_setup(config)
             })
         end
 
-        Citizen.SetTimeout(config.timeInBetween, function()
-            adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
-        end)
+        adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
     end)
 
     adapter_register_net_event(EVENTS.DIED, function()
