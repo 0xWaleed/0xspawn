@@ -29,9 +29,9 @@ function get_player_license(playerServerId)
 end
 
 function strategy_recent_location_setup(config)
-    local coords = exports['0xspawn-coords']:getFirstCoords()
+    local firstCoords = exports['0xspawn-coords']:getFirstCoords()
 
-    if not coords then
+    if not firstCoords then
         error('expect to define at least one location')
     end
 
@@ -46,16 +46,16 @@ function strategy_recent_location_setup(config)
 
     local function spawn_me(playerServerId)
         local license = get_player_license(playerServerId)
-        local data = repo_retrieve_player_coords(license)
+        local coords = repo_retrieve_player_coords(license)
 
-        log('spawning player', GetPlayerName(playerServerId), data)
+        log('spawning player', GetPlayerName(playerServerId), coords)
 
-        if not data then
-            log('player coords is not found, fallback to default coord', coords)
-            data = coords
+        if not coords then
+            log('player coords is not found, fallback to default coord', firstCoords)
+            coords = firstCoords
         end
 
-        adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, data)
+        adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
     end
 
     adapter_register_net_event(COMMANDS.SPAWN_ME, function()
