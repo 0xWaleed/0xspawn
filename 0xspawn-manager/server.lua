@@ -66,9 +66,8 @@ function strategy_recent_location_setup(config)
     adapter_register_net_event(EVENTS.DIED, function()
         local playerServerId = source
         log('player died', GetPlayerName(playerServerId))
-        Citizen.SetTimeout(config.timeInBetween, function()
-            spawn_me(playerServerId)
-        end)
+        Wait(config.timeInBetween)
+        spawn_me(playerServerId)
     end)
 
     if config.debug then
@@ -103,9 +102,8 @@ function strategy_random_location_setup(config)
 
     adapter_register_net_event(EVENTS.DIED, function()
         local playerServerId = source
-        Citizen.SetTimeout(config.timeInBetween, function()
-            spawn_me(playerServerId)
-        end)
+        Wait(config.timeInBetween)
+        spawn_me(playerServerId)
     end)
 end
 
@@ -125,9 +123,8 @@ function strategy_ui_location_selector_setup(config)
 
         local coords = coordsService:getCoords()
 
-        Citizen.SetTimeout(config.timeInBetween, function()
-            adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
-        end)
+        Wait(config.timeInBetween)
+        adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
     end)
 
 end
@@ -189,9 +186,8 @@ function strategy_ui_location_selector_with_recent_location_setup(config)
             })
         end
 
-        Citizen.SetTimeout(config.timeInBetween, function()
-            adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
-        end)
+        Wait(config.timeInBetween)
+        adapter_trigger_remote_event(COMMANDS.PROCESS_SPAWN, playerServerId, coords)
     end)
 end
 
